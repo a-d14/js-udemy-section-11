@@ -61,11 +61,13 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const displayMovements = function(movements) {
+const displayMovements = function(movements, sort=false) {
 
   containerMovements.innerHTML = '';
 
-  movements.forEach((mov, i) => {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+  movs.forEach((mov, i) => {
 
     const type = mov > 0 ? "deposit" : "withdrawal";
 
@@ -184,7 +186,14 @@ btnLoan.addEventListener('click', function(e) {
     updateUI();
   }
   inputLoanAmount.blur();
-})
+});
+
+let sorted = false;
+btnSort.addEventListener('click', function(e) {
+  e.preventDefault();
+  sorted = !sorted;
+  displayMovements(currentAccount.movements, sorted);
+});
 
 /***** CHALLENGE #1 *****/
 
@@ -241,6 +250,46 @@ console.log(avg1, avg2);
 
 /***** END OF CHALLENGE *****/
 
+/***** CHALLENGE #4 *****/
+
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matilda'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Michael'] }
+];
+
+dogs.forEach(dog => dog.recFood = Math.trunc(dog.weight ** 0.75 * 28));
+console.log(dogs);
+
+const dogSarah = dogs.find(dog => dog.owners.includes('Sarah'));
+console.log(dogSarah.curFood > 1.1 * dogSarah.recFood ? "Sarah's dog is eating too much" : 
+            dogSarah.curFood < 0.9 * dogSarah.recFood ? "Sarah's dog is eating too less" : "Sarah's dog is eating the right amount");
+
+const {eatTooMuch, eatTooLittle} = dogs.reduce((obj, dog) => {
+  if(dog.curFood > dog.recFood) {
+    obj.eatTooMuch = obj.eatTooMuch.concat(dog.owners);
+  } else if(dog.curFood < dog.recFood) {
+    obj.eatTooLittle = obj.eatTooLittle.concat(dog.owners);
+  }
+  return obj;
+}, {eatTooMuch : [], eatTooLittle : []});
+
+console.log(eatTooMuch, eatTooLittle);
+
+console.log(`${eatTooMuch.join(" and ")}'s dogs eat too much`);
+console.log(`${eatTooLittle.join(" and ")}'s dogs eat too little`);
+
+console.log(dogs.some(dog => (dog.curFood >= 0.9 * dog.recFood && dog.curFood <= 1.1 * dog.recFood)));
+
+const sortedDogs = dogs.slice();
+sortedDogs.sort((dog1, dog2) => {
+  return dog1.recFood - dog2.recFood
+});
+console.log(sortedDogs);
+
+/***** END OF CHALLENGE *****/
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -263,5 +312,21 @@ console.log(max);
 const eurToUsd = 1.1;
 const totalDepositsUsd = movements.filter(mov => mov > 0).map(mov => mov * eurToUsd).reduce((acc, mov) => acc + mov, 0);
 console.log(totalDepositsUsd);
+
+const diceRolls = Array.from({length:100}, () => Math.floor(Math.random() * 6) + 1);
+console.log(diceRolls);
+
+labelBalance.addEventListener('click', function() {
+  const movementsUI = Array.from(document.querySelectorAll('.movements__value'));
+  console.log(movementsUI);
+});
+
+const sums = accounts.flatMap(acc => acc.movements).
+  reduce((sum, cur) => {
+    cur > 0 ? sum.deposits += cur : sum.withdrawals += cur;
+    return sum;
+  }, {deposits: 0, withdrawals: 0});
+
+console.log(sums);
 
 /////////////////////////////////////////////////
